@@ -165,7 +165,17 @@ processed_content = None
 
 if uploaded_file is not None:
     st.write("File uploaded successfully!")
-    file_contents = uploaded_file.getvalue().decode("utf-8")
+    try:
+        file_contents = uploaded_file.getvalue().decode("cp1252")
+        st.info("File successfully decoded using `cp1252` encoding.")
+    except UnicodeDecodeError:
+        try:
+            file_contents = uploaded_file.getvalue().decode("utf-8")
+            st.info("File successfully decoded using `utf-8` encoding (cp1252 failed).")
+        except UnicodeDecodeError:
+            st.error("Could not decode the file with `cp1252` or `utf-8`. Please check the file's encoding.")
+            file_contents = None # Prevent further processing if decoding failed
+    # file_contents = uploaded_file.getvalue().decode("utf-8")
 
     if st.button("Process File"):
         with st.spinner("Processing file..."):
